@@ -10,7 +10,8 @@ namespace Vertx.Decorators.Editor
 {
 	internal static partial class DecoratorPropertyInjector
 	{
-		internal static SerializedProperty Current { get; private set; }
+		internal static SerializedProperty Current => current?.Copy();
+		private static SerializedProperty current;
 		private static object handler;
 
 		private static Type propertyHandlerType;
@@ -26,7 +27,7 @@ namespace Vertx.Decorators.Editor
 
 		private static void Prefix(SerializedProperty property, object ctx)
 		{
-			Current = property;
+			current = property;
 			handler = ctx;
 		}
 
