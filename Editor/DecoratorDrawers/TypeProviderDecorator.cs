@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using Vertx.Attributes;
+using Vertx.Utilities;
 using Vertx.Utilities.Editor;
 
 namespace Vertx.Decorators.Editor
@@ -76,16 +77,31 @@ namespace Vertx.Decorators.Editor
 			
 			void ShowPropertyDropdown()
 			{
-				AdvancedDropdown dropdown = AdvancedDropdownUtils.CreateAdvancedDropdownFromType(
-					((TypeProviderAttribute) attribute).Type,
-					propName,
-					element =>
-					{
-						property.managedReferenceValue = Activator.CreateInstance(element.Type);
-						property.serializedObject.ApplyModifiedProperties();
-					}
-				);
+				AdvancedDropdown dropdown;
+				Type type = ((TypeProviderAttribute) attribute).Type;
+				if (type.IsSubclassOf(typeof(AdvancedDropdownAttribute)))
+				{
+					dropdown = AdvancedDropdownUtils.CreateAdvancedDropdownFromAttribute(type,
+						propName,
+						OnSelected
+					);
+				}
+				else
+				{
+					dropdown = AdvancedDropdownUtils.CreateAdvancedDropdownFromType(
+						((TypeProviderAttribute) attribute).Type,
+						propName,
+						OnSelected
+					);
+				}
+
 				dropdown.Show(position);
+				
+				void OnSelected(AdvancedDropdownElement element)
+				{
+					property.managedReferenceValue = Activator.CreateInstance(element.Type);
+					property.serializedObject.ApplyModifiedProperties();
+				}
 			}
 		}
 

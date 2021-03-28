@@ -3,7 +3,8 @@
     "rootNamespace": "Vertx.Decorators.Editor",
     "references": [
         "GUID:6beae060d97e1064cb7f9c649033ec11",
-        "GUID:fa341ef7bb8ead74d814badb98304c0d"
+        "GUID:fa341ef7bb8ead74d814badb98304c0d",
+        "GUID:52dd4d866d63f4340922689e9cd83b77"
     ],
     "includePlatforms": [
         "Editor"
