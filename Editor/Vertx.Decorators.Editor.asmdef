@@ -1,0 +1,23 @@
+{
+    "name": "Vertx.Decorators.Editor",
+    "rootNamespace": "Vertx.Decorators.Editor",
+    "references": [
+        "GUID:6beae060d97e1064cb7f9c649033ec11",
+        "GUID:fa341ef7bb8ead74d814badb98304c0d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Mono.Cecil.dll",
+        "Mono.Cecil.Pdb.dll",
+        "0Harmony.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

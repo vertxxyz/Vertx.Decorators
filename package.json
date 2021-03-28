@@ -1,0 +1,17 @@
+{
+  "name": "com.vertx.decorators",
+  "displayName": "Decorators",
+  "version": "1.0.0",
+  "unity": "2020.3",
+  "description": "Advanced Property Decorators",
+  "author": {
+    "name": "Vertx",
+    "url": "https://github.com/vertxxyz"
+  },
+  "keywords": [],
+  "category": "Tools",
+  "dependencies": {
+    "com.vertx.utilities": "2.4.1",
+    "com.needle.editorpatching": "1.1.0-pre.4"
+  }
+}
