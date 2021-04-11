@@ -9,7 +9,7 @@ namespace Vertx.Attributes
 	public class TypeProviderAttribute : PropertyAttribute
 	{
 		public readonly Type Type;
-		public TypeProviderAttribute(Type type, int order = 100)
+		public TypeProviderAttribute(Type type = null, int order = 100)
 		{
 			Type = type;
 			this.order = order;

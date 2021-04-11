@@ -1,5 +1,6 @@
 # Vertx.Decorators
 Attributes and Property Decorators for Unity that have access to the SerializedProperty used to draw the field.  
+Thanks to [Marcel Wiessler](https://twitter.com/marcel_wiessler) and [this article from Sebastian Schöner](https://blog.s-schoener.com/2019-06-23-best-worst-code/) for the inspiration behind this implementation.  
 
 ⚠️ This package requires 2020.3+ ⚠️
 
