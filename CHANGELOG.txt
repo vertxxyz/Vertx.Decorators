@@ -5,7 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [1.0.2]
-- Added AdvancedDropdownAttribute support for TypeProvider
+ - TypeProvider:
+    - Added AdvancedDropdownAttribute support.
+    - Type argument is now optional.
+    - Restyled the UI.
 
 ## [1.0.1]
  - Fix for crucial issue that stopped the package functioning.
