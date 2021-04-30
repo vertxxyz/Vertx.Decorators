@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using UnityEditor;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Vertx.Decorators.Editor
@@ -25,49 +27,22 @@ namespace Vertx.Decorators.Editor
 		private const string propertyGuiMethodName = "OnGUI";
 		private const string getHeightMethodName = "GetHeight";
 
-		private static void Prefix(SerializedProperty property, object ctx)
+		internal static void OnGUIPrefix(SerializedProperty property, object ctx)
 		{
 			current = property;
 			handler = ctx;
 		}
+		
+		internal static void GetHeightPrefix(ref float height, SerializedProperty property, object ctx)
+		{
+			current = property;
+			handler = ctx;
+			
+			height += TypeProviderDecorator.GetPropertyHeight(property);
+		}
 
 		[InitializeOnLoadMethod]
 		private static void Initialise() => Inject();
-
-
-		private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, OpCode opCode)
-		{
-			bool injected = false;
-			foreach (var instruction in instructions)
-			{
-				if (!injected)
-				{
-					// There is not a ldargX as the first instruction usually, so we know we have previously injected if this is the case.
-					if (instruction.opcode != opCode)
-					{
-						// Loads the argument at index X ("property") onto the evaluation stack.
-						yield return new CodeInstruction(opCode);
-						// Loads "this" onto the evaluation stack.
-						yield return new CodeInstruction(OpCodes.Ldarg_0);
-						// Call our new method.
-						var codeInstruction = new CodeInstruction(OpCodes.Call,
-							typeof(DecoratorPropertyInjector).GetMethod(nameof(Prefix), BindingFlags.Static | BindingFlags.NonPublic));
-						yield return codeInstruction;
-					}
-
-					injected = true;
-				}
-
-				yield return instruction;
-			}
-
-			if (!injected)
-				Debug.Log("Missing Injection");
-		}
-
-		private static IEnumerable<CodeInstruction> TranspilerLdarg1(IEnumerable<CodeInstruction> instructions) => Transpiler(instructions, OpCodes.Ldarg_1);
-		private static IEnumerable<CodeInstruction> TranspilerLdarg2(IEnumerable<CodeInstruction> instructions) => Transpiler(instructions, OpCodes.Ldarg_2);
-
 
 		private static void Inject()
 		{
@@ -98,7 +73,7 @@ namespace Vertx.Decorators.Editor
 				onGUIMethod,
 				transpiler:
 				new HarmonyMethod(
-					typeof(DecoratorPropertyInjector).GetMethod(nameof(TranspilerLdarg2), BindingFlags.NonPublic | BindingFlags.Static)
+					typeof(Transpiler_OnGUI).GetMethod(nameof(Transpiler_OnGUI.Transpiler), BindingFlags.NonPublic | BindingFlags.Static)
 				)
 			);
 		}
@@ -118,7 +93,7 @@ namespace Vertx.Decorators.Editor
 				getHeightMethod,
 				transpiler:
 				new HarmonyMethod(
-					typeof(DecoratorPropertyInjector).GetMethod(nameof(TranspilerLdarg1), BindingFlags.NonPublic | BindingFlags.Static)
+					typeof(Transpiler_GetHeight).GetMethod(nameof(Transpiler_GetHeight.Transpiler), BindingFlags.NonPublic | BindingFlags.Static)
 				)
 			);
 		}

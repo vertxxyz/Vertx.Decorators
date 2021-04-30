@@ -56,5 +56,15 @@ namespace Vertx.Decorators.Editor
 
 			return (float) getHeightMethod.Invoke(handler, getHeightParams) - height;
 		}
+
+		internal static float GetPropertyHeightRaw()
+		{
+			MethodInfo getHeightMethod = GetHeightMethod(PropertyHandlerType);
+			getHeightParams[0] = Current;
+			getHeightParams[1] = GUIContent.none;
+			getHeightParams[2] = true;
+
+			return (float) getHeightMethod.Invoke(handler, getHeightParams);
+		}
 	}
 }
