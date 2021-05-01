@@ -6,9 +6,15 @@ Thanks to [Marcel Wiessler](https://twitter.com/marcel_wiessler) and [this artic
 
 ## Attributes
 
+- **[TypeProvider]**
 - **[TypeProvider(typeof(Example))]**  
 Decorates a `[SerializeReference]` field, providing instances of a type that can easily be added via a dropdown.  
   
+![Type Provider Example](Documentation~/TypeProviderExample.gif)
+  
+## Details
+It's important to note that Decorators still do not draw on collection elements. If you have another use case similar to TypeProvider that requires collection elements, please let me know.  
+Otherwise, inheriting from `DecoratorDrawerWithProperty` will provide a normal decorator that has access to the SerializedProperty.  
 
 ## Installation
 
