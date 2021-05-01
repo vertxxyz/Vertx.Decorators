@@ -53,7 +53,7 @@ namespace Vertx.Decorators.Editor
 						yield return new CodeInstruction(OpCodes.Ldarga_S, 1);
 						// Call our new method.
 						var codeInstruction = new CodeInstruction(OpCodes.Call,
-							typeof(TypeProviderDecorator).GetMethod(nameof(TypeProviderDecorator.OnGUI), BindingFlags.Static | BindingFlags.Public)
+							typeof(SerializeReferenceDecorator).GetMethod(nameof(SerializeReferenceDecorator.OnGUI), BindingFlags.Static | BindingFlags.Public)
 						);
 						yield return codeInstruction;
 

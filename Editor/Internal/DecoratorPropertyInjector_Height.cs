@@ -11,7 +11,7 @@ namespace Vertx.Decorators.Editor
 		private static FieldInfo m_DecoratorDrawers;
 		private static FieldInfo DecoratorDrawers =>
 			m_DecoratorDrawers ??= m_DecoratorDrawers = PropertyHandlerType.GetField("m_DecoratorDrawers", BindingFlags.NonPublic | BindingFlags.Instance);
-
+		
 		private static PropertyInfo propertyDrawer;
 		private static PropertyInfo PropertyDrawer =>
 			propertyDrawer ??= propertyDrawer = PropertyHandlerType.GetProperty("propertyDrawer", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -20,7 +20,7 @@ namespace Vertx.Decorators.Editor
 		private static MethodInfo SinglePropertyHeight =>
 			singlePropertyHeight ?? typeof(EditorGUI).GetMethod("GetSinglePropertyHeight", BindingFlags.NonPublic | BindingFlags.Static);
 
-		private static bool TryGetDecoratorDrawers(out List<DecoratorDrawer> decoratorDrawers, out Type handlerType)
+		public static bool TryGetDecoratorDrawers(out List<DecoratorDrawer> decoratorDrawers, out Type handlerType)
 		{
 			handlerType = PropertyHandlerType;
 			FieldInfo decoratorDrawersFieldInfo = DecoratorDrawers;

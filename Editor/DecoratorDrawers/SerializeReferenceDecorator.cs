@@ -4,23 +4,24 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using Vertx.Attributes;
 using Vertx.Utilities;
 using Vertx.Utilities.Editor;
 
 namespace Vertx.Decorators.Editor
 {
-	internal static class TypeProviderDecorator
+	internal static class SerializeReferenceDecorator
 	{
-		
 		private static readonly int managedRefStringLength = "managedReference<".Length;
 
 		private static readonly Dictionary<string, (string fullTypeName, GUIContent defaultLabel)> fullTypeNameLookup = new Dictionary<string, (string, GUIContent)>();
 		private static readonly Dictionary<int, GUIContent> typeLabelLookup = new Dictionary<int, GUIContent>();
 		private static Texture2D warnTexture;
 
-		private static readonly float decoratorHeight = EditorGUIUtils.HeightWithSpacing + EditorGUIUtility.standardVerticalSpacing;
+		public static readonly float DecoratorHeight = EditorGUIUtils.HeightWithSpacing + EditorGUIUtility.standardVerticalSpacing;
 
 		private static PropertyInfo inspectorMode;
+
 		private static int GetInspectorMode(SerializedObject serializedObject)
 		{
 			if (inspectorMode == null)
@@ -35,7 +36,25 @@ namespace Vertx.Decorators.Editor
 
 			if (GetInspectorMode(property.serializedObject) != 0)
 				return 0;
-			return decoratorHeight;
+			
+			TypeProviderAttribute attribute  = GetAttribute(property);
+			if (attribute == null)
+				return 0;
+			
+			return DecoratorHeight;
+		}
+
+		private static readonly Dictionary<int, TypeProviderAttribute> attributeLookup = new Dictionary<int, TypeProviderAttribute>();
+
+		private static TypeProviderAttribute GetAttribute(SerializedProperty property)
+		{
+			int hash = property.serializedObject.targetObject.GetType().GetHashCode() ^ property.propertyPath.GetHashCode();
+			if (attributeLookup.TryGetValue(hash, out TypeProviderAttribute attribute))
+				return attribute;
+			FieldInfo fieldInfo = EditorUtils.GetFieldInfoFromProperty(property, out _);
+			attribute = fieldInfo.GetCustomAttribute<TypeProviderAttribute>();
+			attributeLookup.Add(hash, attribute);
+			return attribute;
 		}
 
 		public static void OnGUI(ref Rect totalPosition)
@@ -49,12 +68,16 @@ namespace Vertx.Decorators.Editor
 
 				if (GetInspectorMode(property.serializedObject) != 0)
 					return;
-				
+
+				TypeProviderAttribute attribute = GetAttribute(property);
+				if (attribute == null)
+					return;
+
 				//float totalPropertyHeight = totalPosition.height;
-				totalPosition.height -= decoratorHeight;
+				totalPosition.height -= DecoratorHeight;
 				Rect position = totalPosition;
-				totalPosition.y += EditorGUIUtils.HeightWithSpacing  + EditorGUIUtility.standardVerticalSpacing;
-				position.height = decoratorHeight;
+				totalPosition.y += EditorGUIUtils.HeightWithSpacing + EditorGUIUtility.standardVerticalSpacing;
+				position.height = DecoratorHeight;
 
 				float border = EditorGUIUtility.standardVerticalSpacing;
 				position.y += border;
@@ -62,13 +85,13 @@ namespace Vertx.Decorators.Editor
 
 				string propName = ObjectNames.NicifyVariableName(property.name);
 
-				Type type = null; //TODO ((TypeProviderAttribute) attribute).Type;
-				string typeNameSimple = type?.Name ?? property.managedReferenceFieldTypename;
+				Type specifiedType = attribute?.Type;
+				string typeNameSimple = specifiedType?.Name ?? property.managedReferenceFieldTypename;
 
 				if (!fullTypeNameLookup.TryGetValue(typeNameSimple, out var group))
 				{
 					// Populate the name of the type associated with the property
-					string fullTypeName = GetRelevantType(property).Name;
+					string fullTypeName = GetRelevantType(property, specifiedType).Name;
 					if (fullTypeName.EndsWith("Attribute"))
 						fullTypeName = fullTypeName.Substring(0, fullTypeName.Length - 9);
 					group = (
@@ -109,12 +132,12 @@ namespace Vertx.Decorators.Editor
 
 				// Ideally we could use the total property height Unity has already calculated, but sadly this value does not function in all circumstances
 				// We will need to recalculate the correct height to draw the background.
-				float remainingHeight = DecoratorPropertyInjector.GetPropertyHeightRaw() - decoratorHeight;
+				float remainingHeight = DecoratorPropertyInjector.GetPropertyHeightRaw() - DecoratorHeight;
 				float border2 = border * 2;
 				background.x -= border;
 				background.width += border2;
 				background.y -= border;
-				
+
 				//Header
 				EditorGUIUtils.DrawHeaderWithBackground(background, GUIContent.none);
 				background.y += background.height;
@@ -174,7 +197,7 @@ namespace Vertx.Decorators.Editor
 				void ShowPropertyDropdown()
 				{
 					AdvancedDropdown dropdown;
-					Type type = GetRelevantType(property);
+					Type type = GetRelevantType(property, specifiedType);
 
 					if (type.IsSubclassOf(typeof(AdvancedDropdownAttribute)))
 					{
@@ -208,9 +231,8 @@ namespace Vertx.Decorators.Editor
 			}
 		}
 
-		private static Type GetRelevantType(SerializedProperty property)
+		private static Type GetRelevantType(SerializedProperty property, Type type)
 		{
-			Type type = null; // TODO ((TypeProviderAttribute) attribute).Type;
 			if (type != null)
 				return type;
 			EditorUtils.GetObjectFromProperty(property, out _, out FieldInfo fieldInfo);

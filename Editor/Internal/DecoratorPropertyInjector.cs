@@ -14,7 +14,7 @@ namespace Vertx.Decorators.Editor
 	{
 		internal static SerializedProperty Current => current?.Copy();
 		private static SerializedProperty current;
-		private static object handler;
+		internal static object handler;
 
 		private static Type propertyHandlerType;
 		private static Type PropertyHandlerType => propertyHandlerType ??= propertyHandlerType = Type.GetType(propertyHandlerTypeName);
@@ -38,7 +38,7 @@ namespace Vertx.Decorators.Editor
 			current = property;
 			handler = ctx;
 			
-			height += TypeProviderDecorator.GetPropertyHeight(property);
+			height += SerializeReferenceDecorator.GetPropertyHeight(property);
 		}
 
 		[InitializeOnLoadMethod]
