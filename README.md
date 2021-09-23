@@ -54,7 +54,7 @@ You can also add it directly from GitHub on Unity 2019.4+. Note that you won't b
   **or**
 - Edit your `manifest.json` file to contain `"com.vertx.decorators": "https://github.com/vertxxyz/Vertx.Decorators.git"`,
 
-⚠️ decorators has a dependency on [Editor Patching](https://github.com/needle-tools/editorpatching) so ensure that is referenced into your project to use this package successfully. ⚠️
+⚠️ decorators has a dependency on [Editor Patching](https://github.com/needle-tools/editorpatching) and [Vertx.Utilities](https://github.com/vertxxyz/Vertx.Utilities) so ensure they are referenced into your project to use this package successfully. ⚠️
 
 To update the package with new changes, remove the lock from the `packages-lock.json` file.
 </details>
