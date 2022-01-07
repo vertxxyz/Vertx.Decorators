@@ -7,6 +7,7 @@ using UnityEngine;
 using Vertx.Attributes;
 using Vertx.Utilities;
 using Vertx.Utilities.Editor;
+using Object = UnityEngine.Object;
 
 namespace Vertx.Decorators.Editor
 {
@@ -26,7 +27,7 @@ namespace Vertx.Decorators.Editor
 		{
 			if (inspectorMode == null)
 				inspectorMode = typeof(SerializedObject).GetProperty("inspectorMode", BindingFlags.Instance | BindingFlags.NonPublic);
-			return (int) inspectorMode.GetValue(serializedObject);
+			return (int)inspectorMode.GetValue(serializedObject);
 		}
 
 		public static float GetPropertyHeight(SerializedProperty property)
@@ -36,11 +37,11 @@ namespace Vertx.Decorators.Editor
 
 			if (GetInspectorMode(property.serializedObject) != 0)
 				return 0;
-			
-			TypeProviderAttribute attribute  = GetAttribute(property);
+
+			TypeProviderAttribute attribute = GetAttribute(property);
 			if (attribute == null)
 				return 0;
-			
+
 			return DecoratorHeight;
 		}
 
@@ -57,6 +58,10 @@ namespace Vertx.Decorators.Editor
 			return attribute;
 		}
 
+		/// <summary>
+		/// Used to track whether properties are drawn in a nested fashion.
+		/// This prevents the decorator header appearing twice in that case.
+		/// </summary>
 		public static void OnGUI(ref Rect totalPosition)
 		{
 			try
@@ -73,6 +78,16 @@ namespace Vertx.Decorators.Editor
 				if (attribute == null)
 					return;
 
+				// If you draw a property with a property field this may run twice. This will prevent multiple occurrences of the same property being drawn simultaneously.
+#if UNITY_2022
+				object handler = DecoratorPropertyInjector.Handler;
+				if (DecoratorPropertyInjector.IsCurrentlyNested(handler))
+					return;
+				// Same repaint.
+#endif
+				// ...
+
+
 				//float totalPropertyHeight = totalPosition.height;
 				totalPosition.height -= DecoratorHeight;
 				Rect position = totalPosition;
@@ -85,7 +100,7 @@ namespace Vertx.Decorators.Editor
 
 				string propName = ObjectNames.NicifyVariableName(property.name);
 
-				Type specifiedType = attribute?.Type;
+				Type specifiedType = attribute.Type;
 				string typeNameSimple = specifiedType?.Name ?? property.managedReferenceFieldTypename;
 
 				if (!fullTypeNameLookup.TryGetValue(typeNameSimple, out var group))
@@ -167,18 +182,25 @@ namespace Vertx.Decorators.Editor
 						GenericMenu menu = new GenericMenu();
 						if (referenceIsAssigned)
 						{
-							menu.AddItem(new GUIContent("Set to Null"), false, () =>
-							{
-								property.managedReferenceValue = null;
-								property.serializedObject.ApplyModifiedProperties();
-							});
+							menu.AddItem(new GUIContent("Set to Null"), false,
+								property => PerformMultipleIfRequiredAndApplyModifiedProperties(
+									(SerializedProperty)property,
+									p => p.managedReferenceValue = null
+								),
+								property
+							);
 
-							menu.AddItem(new GUIContent("Reset Values To Defaults"), false, () =>
-							{
-								Type t = EditorUtils.GetObjectFromProperty(property, out _, out _).GetType();
-								property.managedReferenceValue = Activator.CreateInstance(t);
-								property.serializedObject.ApplyModifiedProperties();
-							});
+							menu.AddItem(new GUIContent("Reset Values To Defaults"), false,
+								property => PerformMultipleIfRequiredAndApplyModifiedProperties(
+									(SerializedProperty)property,
+									p =>
+									{
+										Type t = EditorUtils.GetObjectFromProperty(p, out _, out _).GetType();
+										p.managedReferenceValue = Activator.CreateInstance(t);
+									}
+								),
+								property
+							);
 						}
 						else
 						{
@@ -219,15 +241,36 @@ namespace Vertx.Decorators.Editor
 					dropdown.Show(position);
 
 					void OnSelected(AdvancedDropdownElement element)
-					{
-						property.managedReferenceValue = Activator.CreateInstance(element.Type);
-						property.serializedObject.ApplyModifiedProperties();
-					}
+						=> PerformMultipleIfRequiredAndApplyModifiedProperties(
+							property,
+							p => p.managedReferenceValue = Activator.CreateInstance(element.Type)
+						);
 				}
 			}
 			catch (Exception e)
 			{
 				Debug.LogException(e);
+			}
+		}
+
+		private static void PerformMultipleIfRequiredAndApplyModifiedProperties(SerializedProperty property, Action<SerializedProperty> action)
+		{
+			if (!property.serializedObject.isEditingMultipleObjects)
+			{
+				action(property);
+				property.serializedObject.ApplyModifiedProperties();
+				return;
+			}
+
+			// For some reason this is required to support multi-object editing at times.
+			foreach (Object target in property.serializedObject.targetObjects)
+			{
+				using (var localSerializedObject = new SerializedObject(target))
+				{
+					SerializedProperty localProperty = localSerializedObject.FindProperty(property.propertyPath);
+					action(localProperty);
+					localSerializedObject.ApplyModifiedProperties();
+				}
 			}
 		}
 

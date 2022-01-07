@@ -13,7 +13,8 @@ Decorates a `[SerializeReference]` field, providing instances of a type that can
 ![Type Provider Example](Documentation~/TypeProviderExample.gif)
   
 ## Details
-It's important to note that Decorators still do not draw on collection elements. If you have another use case similar to TypeProvider that requires collection elements, please let me know.  
+TypeProvider supports collection fields, and will draw correctly inside of custom editors.  
+It's important to note that Decorators using `DecoratorDrawerWithProperty` still do not draw on individual collection elements. If you have another use case similar to TypeProvider that requires collection elements, please let me know.  
 Otherwise, inheriting from `DecoratorDrawerWithProperty` will provide a normal decorator that has access to the SerializedProperty.  
 
 ## Installation

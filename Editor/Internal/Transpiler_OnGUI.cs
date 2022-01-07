@@ -40,10 +40,12 @@ namespace Vertx.Decorators.Editor
 				{
 					if(!readyToInjectTypeProvider)
 					{
+						// The end of the first foreach
 						if (instruction.opcode == OpCodes.Endfinally)
 							readyToInjectTypeProvider = true;
 					}
-					//This attempts to inject this instruction after "position.height = x;"
+					
+					//This attempts to inject this instruction after "position.height = x;" (line 166 in 2022.1)
 					else if (instruction.opcode == OpCodes.Call)
 					{
 						// Use current instruction
@@ -66,7 +68,7 @@ namespace Vertx.Decorators.Editor
 			}
 
 			if (!injectedDrawer || !injectedTypeProvider)
-				Debug.Log("Missing Injection");
+				Debug.LogWarning("Missing injection. This likely means that Vertx.Decorators is not valid with this version of Unity.");
 		}
 	}
 }

@@ -1,12 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using HarmonyLib;
 using UnityEditor;
-using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Vertx.Decorators.Editor
 {
@@ -14,7 +9,7 @@ namespace Vertx.Decorators.Editor
 	{
 		internal static SerializedProperty Current => current?.Copy();
 		private static SerializedProperty current;
-		internal static object handler;
+		internal static object Handler;
 
 		private static Type propertyHandlerType;
 		private static Type PropertyHandlerType => propertyHandlerType ??= propertyHandlerType = Type.GetType(propertyHandlerTypeName);
@@ -26,17 +21,26 @@ namespace Vertx.Decorators.Editor
 
 		private const string propertyGuiMethodName = "OnGUI";
 		private const string getHeightMethodName = "GetHeight";
+		
+#if UNITY_2021_1_OR_NEWER
+		private static PropertyInfo isCurrentlyNested;
+		internal static bool IsCurrentlyNested(object handler)
+		{
+			isCurrentlyNested ??= PropertyHandlerType.GetProperty("isCurrentlyNested", BindingFlags.NonPublic | BindingFlags.Instance);
+			return (bool) isCurrentlyNested!.GetValue(handler);
+		}
+#endif
 
 		internal static void OnGUIPrefix(SerializedProperty property, object ctx)
 		{
 			current = property;
-			handler = ctx;
+			Handler = ctx;
 		}
 		
 		internal static void GetHeightPrefix(ref float height, SerializedProperty property, object ctx)
 		{
 			current = property;
-			handler = ctx;
+			Handler = ctx;
 			
 			height += SerializeReferenceDecorator.GetPropertyHeight(property);
 		}
