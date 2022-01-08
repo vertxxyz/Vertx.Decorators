@@ -21,12 +21,22 @@ namespace Vertx.Decorators.Editor
 			OnGUI(position, property);
 		}
 
-		public override float GetHeight() => TryGetProperty(out var property) ? GetHeight(property) : base.GetHeight();
+		public sealed override float GetHeight() => TryGetProperty(out var property) ? GetHeight(property) : base.GetHeight();
 
+		/// <summary>
+		/// Override this method to make your own GUI for the decorator.
+		/// </summary>
+		/// <param name="position">Rectangle on the screen to use for the decorator GUI.</param>
+		/// <param name="property">The property this decorator is attached to.</param>
 		protected abstract void OnGUI(Rect position, SerializedProperty property);
 
 		private bool inGetHeight;
 
+		/// <summary>
+		/// Override this method to specify how tall the GUI for this decorator is in pixels.
+		/// </summary>
+		/// <param name="property">The property this decorator is attached to.</param>
+		/// <returns>The height needed to draw this decorator.</returns>
 		protected virtual float GetHeight(SerializedProperty property)
 		{
 			inGetHeight = true;
