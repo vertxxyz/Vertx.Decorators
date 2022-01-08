@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.1.1]
  - Added multi-object editing support.
- - Fixed nested property drawers causing doubling on 2021.1+.
+ - Fixed nested property drawers causing issues on 2021.1+.
     2020 versions will not support nested property drawers.
+ - Updated to Vertx.Utilities 3.0.0.
+    Improving the type dropdown to display namespaces when types are across many.
 
 ## [1.1.0]
  - Completely reworked TypeProvider's implementation.

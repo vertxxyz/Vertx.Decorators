@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -232,10 +233,23 @@ namespace Vertx.Decorators.Editor
 					}
 					else
 					{
-						dropdown = AdvancedDropdownUtils.CreateAdvancedDropdownFromType(
+						dropdown = new AdvancedDropdownOfSubtypes(new AdvancedDropdownState(), t =>
+							{
+								PerformMultipleIfRequiredAndApplyModifiedProperties(
+									property,
+									p => p.managedReferenceValue = Activator.CreateInstance(t)
+								);
+							},
 							type,
-							propName,
-							OnSelected
+							t => 
+								!t.Assembly.IsDynamic && // Dynamic types are completely irrelevant.
+								!t.IsInterface && // No idea how to serialize an interface alone.
+								!t.IsPointer && // Again, no.
+								!t.IsAbstract && // Cannot serialize an abstract instance.
+								!t.IsArray && // Array types will not work.
+								!t.IsSubclassOf(typeof(Object)) && // UnityEngine.Object types cannot be assigned.
+								t.GetCustomAttribute<CompilerGeneratedAttribute>() == null // Compiler generated code is irrelevant.
+							// There are likely more constraints that can be added here. I am unsure what the exact restrictions around generics are.
 						);
 					}
 
