@@ -2,19 +2,24 @@
 Attributes and Property Decorators for Unity that have access to the SerializedProperty used to draw the field.  
 Thanks to [Marcel Wiessler](https://twitter.com/marcel_wiessler) and [this article from Sebastian Schöner](https://blog.s-schoener.com/2019-06-23-best-worst-code/) for the inspiration behind this implementation.  
 
-⚠️ This package requires 2020.3+ ⚠️
+⚠️ This package requires 2020.3+ ⚠️  
+In versions below 2021, TypeProvider may draw incorrectly when combined with property drawers that nest the SerializedProperty.
 
 ## Attributes
 
-- **[TypeProvider]**
-- **[TypeProvider(typeof(Example))]**  
+### Type Provider
+- `[TypeProvider]`
+- `[TypeProvider(typeof(Example))]`  
 Decorates a `[SerializeReference]` field, providing instances of a type that can easily be added via a dropdown.  
   
 ![Type Provider Example](Documentation~/TypeProviderExample.gif)
-  
-## Details
-It's important to note that Decorators still do not draw on collection elements. If you have another use case similar to TypeProvider that requires collection elements, please let me know.  
-Otherwise, inheriting from `DecoratorDrawerWithProperty` will provide a normal decorator that has access to the SerializedProperty.  
+
+`TypeProvider` supports custom editors, property drawers, and decorators.  
+It does this by injecting multiple modifications into the editor DLL. Other implementations may not achieve the same flexibility.  
+
+### DecoratorDrawerWithProperty
+An abstract DecoratorDrawer implementation that has access to the SerializedProperty used to draw the field.  
+These decorators still do not draw on individual collection elements. If you have use case similar to `TypeProvider` that requires collection elements, please let me know.
 
 ## Installation
 

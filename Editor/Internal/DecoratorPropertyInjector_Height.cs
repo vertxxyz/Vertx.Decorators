@@ -16,10 +16,6 @@ namespace Vertx.Decorators.Editor
 		private static PropertyInfo PropertyDrawer =>
 			propertyDrawer ??= propertyDrawer = PropertyHandlerType.GetProperty("propertyDrawer", BindingFlags.NonPublic | BindingFlags.Instance);
 
-		private static MethodInfo singlePropertyHeight;
-		private static MethodInfo SinglePropertyHeight =>
-			singlePropertyHeight ?? typeof(EditorGUI).GetMethod("GetSinglePropertyHeight", BindingFlags.NonPublic | BindingFlags.Static);
-
 		public static bool TryGetDecoratorDrawers(out List<DecoratorDrawer> decoratorDrawers, out Type handlerType)
 		{
 			handlerType = PropertyHandlerType;
@@ -30,7 +26,7 @@ namespace Vertx.Decorators.Editor
 				return false;
 			}
 
-			decoratorDrawers = (List<DecoratorDrawer>) decoratorDrawersFieldInfo.GetValue(handler);
+			decoratorDrawers = (List<DecoratorDrawer>) decoratorDrawersFieldInfo.GetValue(Handler);
 			return true;
 		}
 
@@ -54,7 +50,7 @@ namespace Vertx.Decorators.Editor
 			getHeightParams[1] = GUIContent.none;
 			getHeightParams[2] = true;
 
-			return (float) getHeightMethod.Invoke(handler, getHeightParams) - height;
+			return (float) getHeightMethod.Invoke(Handler, getHeightParams) - height;
 		}
 
 		internal static float GetPropertyHeightRaw()
@@ -64,7 +60,7 @@ namespace Vertx.Decorators.Editor
 			getHeightParams[1] = GUIContent.none;
 			getHeightParams[2] = true;
 
-			return (float) getHeightMethod.Invoke(handler, getHeightParams);
+			return (float) getHeightMethod.Invoke(Handler, getHeightParams);
 		}
 	}
 }
