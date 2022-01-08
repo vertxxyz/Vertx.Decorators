@@ -21,14 +21,11 @@ namespace Vertx.Decorators.Editor
 
 		public static readonly float DecoratorHeight = EditorGUIUtils.HeightWithSpacing + EditorGUIUtility.standardVerticalSpacing;
 
-		private static PropertyInfo inspectorMode;
-
-		private static int GetInspectorMode(SerializedObject serializedObject)
-		{
-			if (inspectorMode == null)
-				inspectorMode = typeof(SerializedObject).GetProperty("inspectorMode", BindingFlags.Instance | BindingFlags.NonPublic);
-			return (int)inspectorMode.GetValue(serializedObject);
-		}
+		private static readonly Func<SerializedObject, int> GetInspectorMode =
+			(Func<SerializedObject, int>)Delegate.CreateDelegate(
+				typeof(Func<SerializedObject, int>),
+				typeof(SerializedObject).GetProperty("inspectorMode", BindingFlags.Instance | BindingFlags.NonPublic)!.GetGetMethod(true)
+			);
 
 		public static float GetPropertyHeight(SerializedProperty property)
 		{
@@ -41,6 +38,13 @@ namespace Vertx.Decorators.Editor
 			TypeProviderAttribute attribute = GetAttribute(property);
 			if (attribute == null)
 				return 0;
+
+#if UNITY_2021_1_OR_NEWER
+			// If you draw a property with a property field this may run twice. This will prevent multiple occurrences of the same property being drawn simultaneously.
+			object handler = DecoratorPropertyInjector.Handler;
+			if (DecoratorPropertyInjector.IsCurrentlyNested(handler))
+				return 0;
+#endif
 
 			return DecoratorHeight;
 		}
@@ -78,15 +82,12 @@ namespace Vertx.Decorators.Editor
 				if (attribute == null)
 					return;
 
+#if UNITY_2021_1_OR_NEWER
 				// If you draw a property with a property field this may run twice. This will prevent multiple occurrences of the same property being drawn simultaneously.
-#if UNITY_2022
 				object handler = DecoratorPropertyInjector.Handler;
 				if (DecoratorPropertyInjector.IsCurrentlyNested(handler))
 					return;
-				// Same repaint.
 #endif
-				// ...
-
 
 				//float totalPropertyHeight = totalPosition.height;
 				totalPosition.height -= DecoratorHeight;
