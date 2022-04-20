@@ -12,7 +12,13 @@ namespace Vertx.Attributes
 		public enum Display
 		{
 			NoFeatures = 0,
+			/// <summary>
+			/// Shows the constrained type in brackets (Type)
+			/// </summary>
 			ShowTypeConstraint = 1,
+			/// <summary>
+			/// Shows "Set to null" in the context menu.
+			/// </summary>
 			AllowSetToNull = 1 << 1,
 			Default = ShowTypeConstraint | AllowSetToNull
 		}
