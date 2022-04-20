@@ -89,6 +89,7 @@ namespace Vertx.Decorators.Editor
 				if (DecoratorPropertyInjector.IsCurrentlyNested(handler))
 					return;
 #endif
+				TypeProviderAttribute.Display features = attribute.Features;
 
 				//float totalPropertyHeight = totalPosition.height;
 				totalPosition.height -= DecoratorHeight;
@@ -105,7 +106,7 @@ namespace Vertx.Decorators.Editor
 				Type specifiedType = attribute.Type;
 				string typeNameSimple = specifiedType?.Name ?? property.managedReferenceFieldTypename;
 
-				if (!fullTypeNameLookup.TryGetValue(typeNameSimple, out var group))
+				if (!fullTypeNameLookup.TryGetValue(typeNameSimple, out (string fullTypeName, GUIContent defaultLabel) group))
 				{
 					// Populate the name of the type associated with the property
 					string fullTypeName = GetRelevantType(property, specifiedType).Name;
@@ -113,7 +114,7 @@ namespace Vertx.Decorators.Editor
 						fullTypeName = fullTypeName.Substring(0, fullTypeName.Length - 9);
 					group = (
 						fullTypeName, // fullTypeName
-						new GUIContent($"Null ({fullTypeName})") // defaultLabel
+						(features & TypeProviderAttribute.Display.ShowTypeConstraint) != 0 ? new GUIContent($"Null ({fullTypeName})") : new GUIContent("Null") // defaultLabel
 					);
 					fullTypeNameLookup.Add(typeNameSimple, group);
 				}
@@ -131,13 +132,15 @@ namespace Vertx.Decorators.Editor
 					referenceIsAssigned = true;
 
 					int hashCode = property.type.GetHashCode() ^ group.fullTypeName.GetHashCode();
-					if (!typeLabelLookup.TryGetValue(hashCode, out var typeLabel))
+					if (!typeLabelLookup.TryGetValue(hashCode, out GUIContent typeLabel))
 					{
 						typeLabelLookup.Add(
 							hashCode,
 							typeLabel = new GUIContent(
 								// Assigned Type (Type Constraint)
-								$"{ObjectNames.NicifyVariableName(property.type.Substring(managedRefStringLength, property.type.Length - managedRefStringLength - 1))} ({group.fullTypeName})"
+								(features & TypeProviderAttribute.Display.ShowTypeConstraint) != 0 ?
+								$"{ObjectNames.NicifyVariableName(property.type.Substring(managedRefStringLength, property.type.Length - managedRefStringLength - 1))} ({group.fullTypeName})" :
+								ObjectNames.NicifyVariableName(property.type.Substring(managedRefStringLength, property.type.Length - managedRefStringLength - 1))
 							)
 						);
 					}
@@ -184,13 +187,16 @@ namespace Vertx.Decorators.Editor
 						GenericMenu menu = new GenericMenu();
 						if (referenceIsAssigned)
 						{
-							menu.AddItem(new GUIContent("Set to Null"), false,
-								property => PerformMultipleIfRequiredAndApplyModifiedProperties(
-									(SerializedProperty)property,
-									p => p.managedReferenceValue = null
-								),
-								property
-							);
+							if ((features & TypeProviderAttribute.Display.AllowSetToNull) != 0)
+							{
+								menu.AddItem(new GUIContent("Set to Null"), false,
+									property => PerformMultipleIfRequiredAndApplyModifiedProperties(
+										(SerializedProperty)property,
+										p => p.managedReferenceValue = null
+									),
+									property
+								);
+							}
 
 							menu.AddItem(new GUIContent("Reset Values To Defaults"), false,
 								property => PerformMultipleIfRequiredAndApplyModifiedProperties(
@@ -206,7 +212,8 @@ namespace Vertx.Decorators.Editor
 						}
 						else
 						{
-							menu.AddDisabledItem(new GUIContent("Set to Null"), false);
+							if((features & TypeProviderAttribute.Display.AllowSetToNull) != 0)
+								menu.AddDisabledItem(new GUIContent("Set to Null"), false);
 							menu.AddDisabledItem(new GUIContent("Reset Values To Defaults"), false);
 						}
 

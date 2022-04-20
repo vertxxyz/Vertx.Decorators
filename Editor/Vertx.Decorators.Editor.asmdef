@@ -13,9 +13,7 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "Mono.Cecil.dll",
-        "Mono.Cecil.Pdb.dll",
-        "0Harmony.dll"
+        "EditorPatching_0Harmony.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],
