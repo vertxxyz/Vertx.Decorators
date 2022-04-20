@@ -4,25 +4,31 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0]
+- Added Display options to TypeProviderAttribute.
+- Updated to Vertx.Utilities 3.1.0.
+    Improvements for displaying interfaces and generic types.
+- Updated needle.editorpatching dependency to no longer be experimental.
+
 ## [1.1.1]
- - Added multi-object editing support.
- - Fixed nested property drawers causing issues on 2021.1+.
+- Added multi-object editing support.
+- Fixed nested property drawers causing issues on 2021.1+.
     2020 versions will not support nested property drawers.
- - Updated to Vertx.Utilities 3.0.0.
+- Updated to Vertx.Utilities 3.0.0.
     Improving the type dropdown to display namespaces when types are across many.
 
 ## [1.1.0]
- - Completely reworked TypeProvider's implementation.
-    - Now properly supports array properties.
+- Completely reworked TypeProvider's implementation.
+- Now properly supports array properties.
 
 ## [1.0.2]
- - TypeProvider:
-    - Added AdvancedDropdownAttribute support.
-    - Type argument is now optional.
-    - Restyled the UI.
+- TypeProvider:
+- Added AdvancedDropdownAttribute support.
+- Type argument is now optional.
+- Restyled the UI.
 
 ## [1.0.1]
- - Fix for crucial issue that stopped the package functioning.
+- Fix for crucial issue that stopped the package functioning.
 
 ## [1.0.0]
- - Initial releases
+- Initial releases
