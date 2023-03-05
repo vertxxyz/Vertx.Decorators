@@ -1,4 +1,10 @@
 # Vertx.Decorators
+> **Warning**
+> This package has been replaced with [SerializeReference Dropdown](https://github.com/vertxxyz/Vertx.SerializeReferenceDropdown).
+
+<details>
+<summary>OLD README</summary>
+
 Attributes and Property Decorators for Unity that have access to the SerializedProperty used to draw the field.  
 Thanks to [Marcel Wiessler](https://twitter.com/marcel_wiessler) and [this article from Sebastian Schöner](https://blog.s-schoener.com/2019-06-23-best-worst-code/) for the inspiration behind this implementation.  
 
@@ -62,4 +68,5 @@ You can also add it directly from GitHub on Unity 2019.4+. Note that you won't b
 ⚠️ decorators has a dependency on [Editor Patching](https://github.com/needle-tools/editorpatching) and [Vertx.Utilities](https://github.com/vertxxyz/Vertx.Utilities) so ensure they are referenced into your project to use this package successfully. ⚠️
 
 To update the package with new changes, remove the lock from the `packages-lock.json` file.
+</details>
 </details>
